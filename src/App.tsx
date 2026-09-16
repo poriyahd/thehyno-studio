@@ -15,16 +15,25 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Language = "en" | "fa";
-type View = "studio" | "personal" | "about" | "services";
+type View = "photography" | "studio" | "personal" | "about" | "services";
 type Phase = "intro" | "transition" | "portfolio";
-type Category = "all" | "acting" | "theatre" | "directing" | "visual" | "ai" | "photography" | "aerial";
+type Category = "all" | "acting" | "theatre" | "directing" | "visual" | "ai" | "photography" | "aerial" | "sea" | "nature";
 type ProjectCategory = Exclude<Category, "all"> | "production" | "video" | "creative";
-type Project = { id: string; number: string; category: ProjectCategory; media: string; poster?: string; kind?: "video"; position?: string };
+type Project = {
+  id: string;
+  number: string;
+  category: ProjectCategory;
+  media: string;
+  poster?: string;
+  kind?: "video";
+  position?: string;
+  title?: { en: string; fa: string };
+};
 const media = (file: string) => `${import.meta.env.BASE_URL}media/${file}`;
 
 const copy = {
   en: {
-    nav: { studio: "Studio", personal: "Personal Work", about: "About", services: "Services", contact: "Contact" },
+    nav: { photography: "Photography", studio: "Studio", personal: "Personal Work", about: "About", services: "Services", contact: "Contact" },
     intro: {
       mark: "THEHYNO Studio",
       byline: "Creative Studio by Poriya Heydarinia",
@@ -47,12 +56,14 @@ const copy = {
     portfolio: {
       studioEyebrow: "THEHYNO Studio / Selected work",
       personalEyebrow: "Poriya Heydarinia / Personal work",
+      photoEyebrow: "Poriya Heydarinia / Photographic archive",
       studioTitle: "Commercial image-making, shaped as a complete visual world.",
       personalTitle: "Performance, direction and experiments from a personal point of view.",
+      photoTitle: "Air, water, and the quiet life between.",
       selection: "Selection", open: "View work", close: "Close project", back: "Back to intro", browse: "Browse selection",
       all: "All", acting: "Acting", theatre: "Theatre", directing: "Directing", visual: "Personal Visual Work",
       ai: "AI-assisted", photography: "Photography", aerial: "Aerial", production: "Production", video: "Video",
-      creative: "Creative Direction", next: "Next", previous: "Previous",
+      sea: "Sea", nature: "Nature", creative: "Creative Direction", next: "Next", previous: "Previous",
     },
     about: {
       eyebrow: "About / Contact",
@@ -77,7 +88,7 @@ const copy = {
     },
   },
   fa: {
-    nav: { studio: "استودیو", personal: "کارهای شخصی", about: "درباره", services: "خدمات", contact: "ارتباط" },
+    nav: { photography: "عکاسی", studio: "استودیو", personal: "کارهای شخصی", about: "درباره", services: "خدمات", contact: "ارتباط" },
     intro: {
       mark: "استودیو دهینو",
       byline: "استودیوی خلاق پوریا حیدرینیا",
@@ -100,12 +111,14 @@ const copy = {
     portfolio: {
       studioEyebrow: "استودیو دهینو / گزیده آثار",
       personalEyebrow: "پوریا حیدرینیا / کارهای شخصی",
+      photoEyebrow: "پوریا حیدرینیا / آرشیو عکاسی",
       studioTitle: "تصویرسازی تجاری، در قالب یک جهان بصری کامل.",
       personalTitle: "اجرا، کارگردانی و تجربه‌هایی از یک نگاه شخصی.",
+      photoTitle: "هوا، آب و زندگیِ آرام میان آن‌ها.",
       selection: "گزیده", open: "مشاهده اثر", close: "بستن اثر", back: "بازگشت به مقدمه", browse: "مرور گزیده‌ها",
       all: "همه", acting: "بازیگری", theatre: "تئاتر", directing: "کارگردانی", visual: "کار تصویری شخصی",
       ai: "با کمک هوش مصنوعی", photography: "عکاسی", aerial: "تصویربرداری هوایی", production: "تولید",
-      video: "ویدیو", creative: "کارگردانی خلاق", next: "بعدی", previous: "قبلی",
+      sea: "دریا", nature: "طبیعت", video: "ویدیو", creative: "کارگردانی خلاق", next: "بعدی", previous: "قبلی",
     },
     about: {
       eyebrow: "درباره / ارتباط",
@@ -155,7 +168,31 @@ const personalProjects: Project[] = [
   { id: "personal-07", number: "07", category: "aerial", media: media("aerial.mp4"), poster: media("aerial-poster.webp"), kind: "video" },
 ];
 
-const categories: Category[] = ["all", "acting", "theatre", "directing", "visual", "ai", "photography", "aerial"];
+const photographyProjects: Project[] = [
+  { id: "photo-01", number: "01", category: "aerial", media: media("photography/aerial-tide.webp"), title: { en: "Tidal Script", fa: "خطِ جزر" }, position: "center 45%" },
+  { id: "photo-02", number: "02", category: "aerial", media: media("photography/aerial-cloud-road.webp"), title: { en: "Road Under Weather", fa: "جاده زیرِ هوا" }, position: "center 54%" },
+  { id: "photo-03", number: "03", category: "aerial", media: media("photography/aerial-river-city.webp"), title: { en: "River / City", fa: "رود / شهر" }, position: "center 54%" },
+  { id: "photo-04", number: "04", category: "aerial", media: media("photography/aerial-desert-car.webp"), title: { en: "Small Arrival", fa: "رسیدنِ کوچک" }, position: "center 58%" },
+  { id: "photo-05", number: "05", category: "sea", media: media("photography/sea-pilings.webp"), title: { en: "Low Tide Chorus", fa: "هم‌سراییِ جزر" } },
+  { id: "photo-06", number: "06", category: "sea", media: media("photography/sea-splash.webp"), title: { en: "Into the Water", fa: "به‌سمتِ آب" } },
+  { id: "photo-07", number: "07", category: "sea", media: media("photography/sea-golden-hour.webp"), title: { en: "Afterglow", fa: "پس‌تاب" } },
+  { id: "photo-08", number: "08", category: "sea", media: media("photography/sea-boat-trail.webp"), title: { en: "A Line Leaving", fa: "خطی که می‌رود" } },
+  { id: "photo-09", number: "09", category: "sea", media: media("photography/sea-fisherman-shore.webp"), title: { en: "Before Departure", fa: "پیش از رفتن" } },
+  { id: "photo-10", number: "10", category: "sea", media: media("photography/sea-blue-boat.webp"), title: { en: "Blue Passage", fa: "گذرِ آبی" } },
+  { id: "photo-11", number: "11", category: "sea", media: media("photography/sea-fishermen-line.webp"), title: { en: "The Waiting Line", fa: "صفِ انتظار" } },
+  { id: "photo-12", number: "12", category: "sea", media: media("photography/sea-net-at-dusk.webp"), title: { en: "Drawing the Net", fa: "کشیدنِ تور" } },
+  { id: "photo-13", number: "13", category: "sea", media: media("photography/sea-sunset-birds.webp"), title: { en: "Last Flight", fa: "آخرین پرواز" } },
+  { id: "photo-14", number: "14", category: "nature", media: media("photography/nature-branches.webp"), title: { en: "Black Veins", fa: "رگ‌های سیاه" } },
+  { id: "photo-15", number: "15", category: "nature", media: media("photography/nature-rain-leaves.webp"), title: { en: "Rain Memory", fa: "حافظه باران" } },
+  { id: "photo-16", number: "16", category: "nature", media: media("photography/nature-green-horizon.webp"), title: { en: "The Green Distance", fa: "فاصله سبز" }, position: "center 46%" },
+  { id: "photo-17", number: "17", category: "nature", media: media("photography/nature-caterpillar.webp"), title: { en: "Small Traveller", fa: "مسافرِ کوچک" } },
+  { id: "photo-18", number: "18", category: "nature", media: media("photography/nature-birds-wire.webp"), title: { en: "Three Notes", fa: "سه نُت" } },
+  { id: "photo-19", number: "19", category: "nature", media: media("photography/nature-fog-walkers.webp"), title: { en: "Figures in Fog", fa: "پیکره‌ها در مه" } },
+  { id: "photo-20", number: "20", category: "nature", media: media("photography/nature-moon.webp"), title: { en: "Day Moon", fa: "ماه روز" } },
+];
+
+const personalCategories: Category[] = ["all", "acting", "theatre", "directing", "visual", "ai", "photography", "aerial"];
+const photographyCategories: Category[] = ["aerial", "sea", "nature"];
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -180,9 +217,9 @@ export function App() {
   const appRef = useRef<HTMLElement>(null);
   const [language, setLanguage] = useState<Language>("en");
   const [phase, setPhase] = useState<Phase>("intro");
-  const [view, setView] = useState<View>("studio");
-  const [category, setCategory] = useState<Category>("all");
-  const [selectedId, setSelectedId] = useState(studioProjects[0].id);
+  const [view, setView] = useState<View>("photography");
+  const [category, setCategory] = useState<Category>("aerial");
+  const [selectedId, setSelectedId] = useState(photographyProjects[0].id);
   const [menuOpen, setMenuOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -190,9 +227,9 @@ export function App() {
   const openingRef = useRef<HTMLVideoElement>(null);
   const reducedMotion = useReducedMotion();
   const t = copy[language];
-  const projects = view === "studio" ? studioProjects : personalProjects;
+  const projects = view === "photography" ? photographyProjects : view === "studio" ? studioProjects : personalProjects;
   const visibleProjects = useMemo(
-    () => (view === "personal" && category !== "all" ? personalProjects.filter((project) => project.category === category) : projects),
+    () => ((view === "personal" || view === "photography") && category !== "all" ? projects.filter((project) => project.category === category) : projects),
     [view, category, projects],
   );
   const selected = visibleProjects.find((project) => project.id === selectedId) ?? visibleProjects[0] ?? projects[0];
@@ -222,8 +259,9 @@ export function App() {
 
   const goToView = (next: View) => {
     setView(next);
-    setCategory("all");
-    setSelectedId(next === "studio" ? studioProjects[0].id : personalProjects[0].id);
+    const nextProjects = next === "photography" ? photographyProjects : next === "studio" ? studioProjects : personalProjects;
+    setCategory(next === "photography" ? "aerial" : "all");
+    setSelectedId(nextProjects[0].id);
     setProjectOpen(false);
     setMenuOpen(false);
     if (phase !== "portfolio") enter(true);
@@ -243,6 +281,14 @@ export function App() {
   };
 
   const categoryLabel = (value: ProjectCategory) => String(t.portfolio[value]);
+  const projectTitle = (project: Project) => project.title?.[language] ?? categoryLabel(project.category);
+  const portfolioEyebrow = view === "photography" ? t.portfolio.photoEyebrow : view === "studio" ? t.portfolio.studioEyebrow : t.portfolio.personalEyebrow;
+  const portfolioTitle = view === "photography" ? t.portfolio.photoTitle : view === "studio" ? t.portfolio.studioTitle : t.portfolio.personalTitle;
+  const selectCategory = (next: Category) => {
+    setCategory(next);
+    const first = projects.find((project) => next === "all" || project.category === next);
+    if (first) setSelectedId(first.id);
+  };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
     if (reducedMotion) return;
@@ -253,7 +299,7 @@ export function App() {
   };
 
   return (
-    <main ref={appRef} className={`app phase-${phase}`} onPointerMove={handlePointerMove}>
+    <main ref={appRef} className={`app phase-${phase} view-${view}`} onPointerMove={handlePointerMove}>
       <section className="intro-screen" aria-hidden={phase !== "intro"}>
         <video ref={openingRef} className="intro-video" src={media("mindworld.mp4")} poster={media("mindworld-poster.webp")}
           autoPlay={!reducedMotion} muted={muted} loop playsInline preload="metadata"
@@ -286,20 +332,25 @@ export function App() {
 
       <section className="mind-transition" aria-hidden={phase !== "transition"}>
         <video src={media("opening.mp4")} poster={media("opening-poster.webp")} autoPlay muted loop playsInline preload="metadata" />
+        <img className="transition-destination" src={photographyProjects[0].media} alt="" />
         <div className="transition-shade" />
-        <div className="transition-copy"><span>THEHYNO / PORIYA</span><p>{language === "fa" ? "ورود به جهان تصویر" : "Entering the image world"}</p></div>
+        <div className="transition-copy"><span>THEHYNO / PHOTOGRAPHY</span><p>{language === "fa" ? "ورود به جهان تصویر" : "Entering the image world"}</p></div>
       </section>
 
       <section className="portfolio-screen" aria-hidden={phase !== "portfolio"}>
-        {(view === "studio" || view === "personal") && selected && <BackgroundMedia key={selected.id} project={selected} />}
+        {(view === "photography" || view === "studio" || view === "personal") && selected && <BackgroundMedia key={selected.id} project={selected} />}
         <div className="portfolio-tint" />
         <div className="portfolio-frame">
           <Header language={language} setLanguage={setLanguage} menuOpen={menuOpen} setMenuOpen={setMenuOpen} goToView={goToView} t={t} />
           {view === "about" ? <AboutView t={t} language={language} goToView={goToView} /> : view === "services" ? <ServicesView t={t} /> : (
             <div className="portfolio-content">
-              <div className="portfolio-heading"><p className="eyebrow">{view === "studio" ? t.portfolio.studioEyebrow : t.portfolio.personalEyebrow}</p><h1>{view === "studio" ? t.portfolio.studioTitle : t.portfolio.personalTitle}</h1></div>
-              {view === "personal" && <div className="category-row" aria-label="Personal work categories">{categories.map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)} aria-pressed={category === item}>{t.portfolio[item]}</button>)}</div>}
-              <div className="selected-meta"><div><span>{t.portfolio.selection} {selected.number}</span><h2>{categoryLabel(selected.category)}</h2></div><button className="open-project" onClick={() => setProjectOpen(true)}><ArrowsOutSimple size={17} />{t.portfolio.open}</button></div>
+              <div className="portfolio-heading"><p className="eyebrow">{portfolioEyebrow}</p><h1>{portfolioTitle}</h1></div>
+              {view === "photography" && <div className="chapter-row" aria-label="Photography chapters">{photographyCategories.map((item, index) => {
+                const count = photographyProjects.filter((project) => project.category === item).length;
+                return <button key={item} className={category === item ? "active" : ""} onClick={() => selectCategory(item)} aria-pressed={category === item}><span>0{index + 1}</span><strong>{t.portfolio[item]}</strong><small>{String(count).padStart(2, "0")} {language === "fa" ? "قاب" : "frames"}</small></button>;
+              })}</div>}
+              {view === "personal" && <div className="category-row" aria-label="Personal work categories">{personalCategories.map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => selectCategory(item)} aria-pressed={category === item}>{t.portfolio[item]}</button>)}</div>}
+              <div className="selected-meta"><div><span>{categoryLabel(selected.category)} / {t.portfolio.selection} {selected.number}</span><h2>{projectTitle(selected)}</h2></div><button className="open-project" onClick={() => setProjectOpen(true)}><ArrowsOutSimple size={17} />{t.portfolio.open}</button></div>
               <div className="project-rail-wrap"><span className="rail-label">{t.portfolio.browse}</span><div className="project-rail">{visibleProjects.map((project) => (
                 <button key={project.id} className={`project-thumb ${project.id === selected.id ? "active" : ""}`} onClick={() => setSelectedId(project.id)} aria-label={`${categoryLabel(project.category)} ${project.number}`}>
                   {project.kind === "video" ? <video src={project.media} poster={project.poster} muted loop playsInline preload="metadata" /> : <img src={project.media} alt="" style={{ objectPosition: project.position }} />}<span>{project.number}</span>
@@ -315,7 +366,7 @@ export function App() {
         {selected && <BackgroundMedia key={`overlay-${selected.id}`} project={selected} className="overlay-media" />}
         <div className="overlay-tint" />
         <button className="overlay-close" onClick={() => setProjectOpen(false)} aria-label={t.portfolio.close}><X size={24} /></button>
-        {selected && <div className="overlay-caption"><p>{view === "studio" ? "THEHYNO STUDIO" : "PORIYA HEYDARINIA"}</p><h2>{categoryLabel(selected.category)}</h2><span>{t.portfolio.selection} {selected.number}</span></div>}
+        {selected && <div className="overlay-caption"><p>{view === "photography" ? "THEHYNO / PHOTOGRAPHY" : view === "studio" ? "THEHYNO STUDIO" : "PORIYA HEYDARINIA"}</p><h2>{projectTitle(selected)}</h2><span>{categoryLabel(selected.category)} / {t.portfolio.selection} {selected.number}</span></div>}
         <div className="overlay-nav"><button onClick={() => stepProject(-1)}>{language === "fa" ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}{t.portfolio.previous}</button><button onClick={() => stepProject(1)}>{t.portfolio.next}{language === "fa" ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}</button></div>
       </div>
     </main>
@@ -328,13 +379,13 @@ function Header({ language, setLanguage, menuOpen, setMenuOpen, goToView, t }: {
 }) {
   return <>
     <header className="site-header">
-      <button className="wordmark" onClick={() => goToView("studio")} aria-label="THEHYNO Studio home"><strong>THEHYNO</strong><span>STUDIO</span></button>
-      <nav className="desktop-nav" aria-label="Main navigation"><button onClick={() => goToView("studio")}>{t.nav.studio}</button><button onClick={() => goToView("personal")}>{t.nav.personal}</button><button onClick={() => goToView("about")}>{t.nav.about}</button><button onClick={() => goToView("services")}>{t.nav.services}</button><button onClick={() => goToView("services")}>{t.nav.contact}</button></nav>
+      <button className="wordmark" onClick={() => goToView("photography")} aria-label="THEHYNO photography home"><strong>THEHYNO</strong><span>PHOTO ARCHIVE</span></button>
+      <nav className="desktop-nav" aria-label="Main navigation"><button onClick={() => goToView("photography")}>{t.nav.photography}</button><button onClick={() => goToView("studio")}>{t.nav.studio}</button><button onClick={() => goToView("personal")}>{t.nav.personal}</button><button onClick={() => goToView("about")}>{t.nav.about}</button><button onClick={() => goToView("services")}>{t.nav.services}</button></nav>
       <div className="header-tools"><a className="instagram-link" href={contact.instagram} target="_blank" rel="noreferrer" aria-label="Instagram @thehyno"><InstagramLogo size={15} weight="bold" /><span>@thehyno</span></a><a className="phone-link" href={`tel:${contact.phone}`} aria-label={`${t.nav.contact} ${contact.display}`}><Phone size={15} weight="bold" /><span>{contact.display}</span></a><div className="language-switch" aria-label="Language"><button className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>EN</button><span>/</span><button className={language === "fa" ? "active" : ""} onClick={() => setLanguage("fa")}>FA</button></div><button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Open menu"><List size={24} /></button></div>
     </header>
     <div className={`mobile-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-      <div className="mobile-menu-head"><span>THEHYNO / STUDIO</span><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={26} /></button></div>
-      <nav>{(["studio", "personal", "about", "services"] as View[]).map((item, index) => <button key={item} style={{ transitionDelay: menuOpen ? `${100 + index * 70}ms` : "0ms" }} onClick={() => goToView(item)}><span>0{index + 1}</span>{t.nav[item]}</button>)}</nav>
+      <div className="mobile-menu-head"><span>THEHYNO / PHOTO ARCHIVE</span><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={26} /></button></div>
+      <nav>{(["photography", "studio", "personal", "about", "services"] as View[]).map((item, index) => <button key={item} style={{ transitionDelay: menuOpen ? `${100 + index * 70}ms` : "0ms" }} onClick={() => goToView(item)}><span>0{index + 1}</span>{t.nav[item]}</button>)}</nav>
       <p>Creative Studio by Poriya Heydarinia</p>
     </div>
   </>;
